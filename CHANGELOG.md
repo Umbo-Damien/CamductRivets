@@ -1,6 +1,20 @@
 # Changelog
 
-Toutes les modifications notables de ce projet seront documentées dans ce fichier.
+All notable changes to this project will be documented in this file.
+
+## [1.2.0] - 2025-11-18
+
+### Changed
+- **Complete English translation** of the project
+  - Python script: all comments, docstrings, and messages in English
+  - README.md now in English (French version: README_FR.md)
+  - UTILISATION.md renamed to UTILISATION_FR.md
+  - User-facing messages translated
+- Bilingual documentation maintained
+
+### Added
+- English README.md as main documentation
+- Link to French version in English README
 
 ## [1.1.0] - 2025-11-18
 
