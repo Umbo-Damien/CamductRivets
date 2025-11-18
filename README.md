@@ -1,5 +1,9 @@
 # CamductRivets - Gestion des Trous de Fixation pour Assemblage par Rivets
 
+[![Python Tests](https://github.com/Umbo-Damien/CamductRivets/actions/workflows/python-test.yml/badge.svg)](https://github.com/Umbo-Damien/CamductRivets/actions/workflows/python-test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+
 ## Problématique
 
 CAMduct positionne les trous de fixation de manière symétrique à 10mm du bord de la pièce. Pour l'assemblage par rivets avec agrafes de 20mm, cette position n'est correcte que pour un côté :
@@ -116,17 +120,41 @@ Testé sur 7 fichiers DXF réels :
 ```
 CamductRivets/
 ├── scripts/
-│   ├── fix_rivet_holes.py       # Script principal
-│   └── reposition_holes_dxf_v2.py  # Version de développement
+│   └── fix_rivet_holes.py       # Script principal
+├── examples/
+│   └── README.md                # Exemples d'utilisation
+├── .github/
+│   └── workflows/
+│       └── python-test.yml      # CI/CD GitHub Actions
 ├── requirements_dxf.txt         # Dépendances Python
 ├── UTILISATION.md               # Guide d'utilisation détaillé
+├── CHANGELOG.md                 # Historique des versions
+├── LICENSE                      # Licence MIT
 └── README.md                    # Ce fichier
 ```
 
+## Contribuer
+
+Les contributions sont les bienvenues ! Pour contribuer :
+
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/amelioration`)
+3. Commit les changements (`git commit -m 'Ajout d'une fonctionnalité'`)
+4. Push vers la branche (`git push origin feature/amelioration`)
+5. Ouvrir une Pull Request
+
 ## Licence
 
-MIT
+MIT - Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ## Auteur
 
 Projet créé pour résoudre la problématique d'assemblage par rivets dans CAMduct.
+
+## Support
+
+- 📖 [Documentation complète](README.md)
+- 📝 [Guide d'utilisation](UTILISATION.md)
+- 💡 [Exemples](examples/README.md)
+- 🐛 [Signaler un bug](https://github.com/Umbo-Damien/CamductRivets/issues)
+- ⭐ [Donner une étoile](https://github.com/Umbo-Damien/CamductRivets)
