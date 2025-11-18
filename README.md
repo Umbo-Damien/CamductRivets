@@ -1,33 +1,35 @@
-# CamductRivets - Gestion des Trous de Fixation pour Assemblage par Rivets
+# CamductRivets - Rivet Hole Positioning Fix for CAMduct
 
 [![Python Tests](https://github.com/Umbo-Damien/CamductRivets/actions/workflows/python-test.yml/badge.svg)](https://github.com/Umbo-Damien/CamductRivets/actions/workflows/python-test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-## Problématique
+[🇫🇷 Version française](README_FR.md)
 
-CAMduct positionne les trous de fixation de manière symétrique à 10mm du bord de la pièce. Pour l'assemblage par rivets avec agrafes de 20mm, cette position n'est correcte que pour un côté :
+## Problem Statement
 
-- **Bord nu** : Trous à 10mm → ✓ OK (position correcte à -10mm du bord)
-- **Bord avec agrafe 20mm** : Trous à 10mm → ✗ Devrait être à -10mm du bord, mais l'agrafe les décale à +10mm (30mm du bord de la pièce développée)
+CAMduct positions fixing holes symmetrically at 10mm from the part edge. For rivet assembly with 20mm flanges, this position is only correct for one side:
 
-## Solution : Post-traitement DXF
+- **Raw edge**: Holes at 10mm → ✓ OK (correct position at -10mm from edge)
+- **Edge with 20mm flange**: Holes at 10mm → ✗ Should be at -10mm from edge, but the flange shifts them to +10mm (30mm from developed part edge)
 
-Après avoir tenté d'utiliser les scripts COD (API limitée), la solution retenue est le **post-traitement des fichiers DXF exportés** :
+## Solution: DXF Post-Processing
 
-1. **CAMduct** génère les pièces avec trous à 10mm (symétrique)
-2. **Export DXF** des développés depuis CAMduct
-3. **Script Python** corrige automatiquement les trous à 30mm → 10mm
-4. **Réimport** dans CAMduct ou envoi direct à la découpe
+After attempting to use COD scripts (limited API), the chosen solution is **post-processing of exported DXF files**:
 
-### Limitation actuelle de CAMduct
+1. **CAMduct** generates parts with holes at 10mm (symmetric)
+2. **Export DXF** of developed parts from CAMduct
+3. **Python script** automatically corrects holes at 30mm → 10mm
+4. **Re-import** into CAMduct or send directly to cutting
 
-D'après la documentation Autodesk :
-- Seul un **Inset/Offset global** est disponible pour la ligne de trous
-- Option "Allow holes one side only" (trous des deux côtés ou d'un seul)
-- **Aucune option** pour définir des offsets différents par côté (+10mm d'un côté, -10mm de l'autre)
+### Current CAMduct Limitation
 
-Référence : https://help.autodesk.com/view/FABRICATION/ENU/?guid=GUID-7A589738-4B1D-4D93-A98B-D848281E653D
+According to Autodesk documentation:
+- Only a **global Inset/Offset** is available for the hole line
+- "Allow holes one side only" option (holes on both sides or one side only)
+- **No option** to define different offsets per side (+10mm on one side, -10mm on the other)
+
+Reference: https://help.autodesk.com/view/FABRICATION/ENU/?guid=GUID-7A589738-4B1D-4D93-A98B-D848281E653D
 
 ## Installation
 
@@ -35,134 +37,134 @@ Référence : https://help.autodesk.com/view/FABRICATION/ENU/?guid=GUID-7A589738
 pip install -r requirements_dxf.txt
 ```
 
-Ou directement :
+Or directly:
 
 ```bash
 pip install ezdxf
 ```
 
-## Utilisation
+## Usage
 
-### 1. Export DXF depuis CAMduct
+### 1. Export DXF from CAMduct
 
-1. Ouvrir la pièce dans CAMduct
-2. **File > Export > DXF** (ou équivalent)
-3. Exporter tous les développés dans un dossier
+1. Open the part in CAMduct
+2. **File > Export > DXF** (or equivalent)
+3. Export all developed parts to a folder
 
-### 2. Correction automatique
+### 2. Automatic Correction
 
 ```bash
 # Simulation (dry-run)
-python scripts/fix_rivet_holes.py /chemin/vers/dxf/ --dry-run
+python scripts/fix_rivet_holes.py /path/to/dxf/ --dry-run
 
-# Production (génère les fichiers *_fixed.DXF)
-python scripts/fix_rivet_holes.py /chemin/vers/dxf/ /chemin/vers/output/
+# Production (generates *_fixed.DXF files)
+python scripts/fix_rivet_holes.py /path/to/dxf/ /path/to/output/
 ```
 
-### 3. Résultat
+### 3. Result
 
-Le script :
-- ✅ **Filtre les trous de rivets** (Ø 4.2mm uniquement)
-- ✅ Détecte automatiquement les trous à 30mm du bord
-- ✅ Les déplace de -20mm **perpendiculairement au bord** (ramène à 10mm)
-- ✅ Laisse intacts les trous déjà à 10mm
-- ✅ Ignore les autres trous (non-rivets)
-- ✅ Fonctionne sur **toutes les géométries** (bords droits, inclinés, etc.)
+The script:
+- ✅ **Smart filtering**: Processes only rivet holes (Ø 4.2mm ± 0.3mm)
+- ✅ Automatically detects holes at 30mm from edge
+- ✅ Moves them -20mm **perpendicular to the edge** (brings back to 10mm)
+- ✅ Leaves holes already at 10mm untouched
+- ✅ Ignores other holes (non-rivets)
+- ✅ Works on **all geometries** (straight edges, angled, etc.)
 
-## Exemple de sortie
+## Output Example
 
 ```
 ======================================================================
-Fichier: 1-2.DXF
+File: 1-2.DXF
 ======================================================================
 
-Trou   Position             Ø      Dist     Action                        
+Hole   Position             Ø      Dist     Action                        
 ----------------------------------------------------------------------------
-✓ 1    (368.1, 390.4)       4.2mm    29.6mm Déplacer de -20.0mm
-✓ 2    (289.1, 366.8)       4.2mm    30.0mm Déplacer de -20.0mm
-= 3    (210.1, 343.3)       4.2mm    10.0mm OK (déjà à 10mm)
-⊗ 4    (150.0, 200.0)       6.0mm    15.0mm Ignoré (Ø ≠ 4.2mm)
+✓ 1    (368.1, 390.4)       4.2mm    29.6mm Move -20.0mm
+✓ 2    (289.1, 366.8)       4.2mm    30.0mm Move -20.0mm
+= 3    (210.1, 343.3)       4.2mm    10.0mm OK (already at 10mm)
+⊗ 4    (150.0, 200.0)       6.0mm    15.0mm Ignored (Ø ≠ 4.2mm)
 ...
 ----------------------------------------------------------------------------
-Résumé: 5 OK, 5 corrigés, 0 inconnus, 2 ignorés (Ø ≠ 4.2mm)
-✓ Sauvegardé: 1-2_fixed.DXF
+Summary: 5 OK, 5 corrected, 0 unknown, 2 ignored (Ø ≠ 4.2mm)
+✓ Saved: 1-2_fixed.DXF
 
-⚠ Note: Les trous à ~30mm sont souvent liés à la présence d'une marque de 
-pliage ou encoche. Une validation visuelle est toujours recommandée.
+⚠ Note: Holes at ~30mm are often related to fold marks or notches.
+Visual validation is always recommended.
 ```
 
-## Fonctionnalités
+## Features
 
-- ✅ **Filtrage intelligent** : Traite uniquement les trous de rivets (Ø 4.2mm ± 0.3mm)
-- ✅ Détection automatique des trous à 10mm ou 30mm (avec tolérances)
-- ✅ Déplacement perpendiculaire au bord (géométrie quelconque)
-- ✅ Traitement par lot de plusieurs DXF
-- ✅ Mode dry-run pour simulation
-- ✅ Rapport détaillé par fichier et par trou (avec diamètre)
-- ✅ Gestion des bords inclinés et complexes
-- ✅ Tolérances élargies : 6-14mm (OK) et 22-38mm (à corriger)
-- ✅ Ignore automatiquement les trous non-rivets (autres diamètres)
+- ✅ **Smart filtering**: Processes only rivet holes (Ø 4.2mm ± 0.3mm)
+- ✅ Automatic detection of holes at 10mm or 30mm (with tolerances)
+- ✅ Perpendicular displacement to edge (any geometry)
+- ✅ Batch processing of multiple DXF files
+- ✅ Dry-run mode for simulation
+- ✅ Detailed report per file and per hole (with diameter)
+- ✅ Handles angled and complex edges
+- ✅ Extended tolerances: 6-14mm (OK) and 22-38mm (to correct)
+- ✅ Automatically ignores non-rivet holes (other diameters)
 
-## Prérequis
+## Requirements
 
 - Python 3.6+
-- Bibliothèque `ezdxf` (voir Installation)
-- CAMduct pour l'export DXF
+- `ezdxf` library (see Installation)
+- CAMduct for DXF export
 
-## Résultats de Test
+## Test Results
 
-Testé sur 7 fichiers DXF réels :
-- **44 trous corrigés** avec succès
-- **~50+ trous** déjà corrects (non modifiés)
-- **2 trous** signalés pour vérification manuelle (distance intermédiaire)
-- **100% de réussite** sur les cas standards
+Tested on 7 real DXF files:
+- **44 holes corrected** successfully
+- **~50+ holes** already correct (not modified)
+- **2 holes** flagged for manual verification (intermediate distance)
+- **100% success rate** on standard cases
 
-## Limitations Connues
+## Known Limitations
 
-1. **Trous entre 15-21mm** : Signalés comme "inconnus", vérification manuelle recommandée
-2. **Géométries très complexes** : Peuvent nécessiter un ajustement des tolérances
-3. **DXF corrompus** : Le script ignore les fichiers non valides
+1. **Holes between 15-21mm**: Flagged as "unknown", manual verification recommended
+2. **Very complex geometries**: May require tolerance adjustment
+3. **Corrupted DXF files**: Script ignores invalid files
 
-## Structure du Projet
+## Project Structure
 
 ```
 CamductRivets/
 ├── scripts/
-│   └── fix_rivet_holes.py       # Script principal
+│   └── fix_rivet_holes.py       # Main script
 ├── examples/
-│   └── README.md                # Exemples d'utilisation
+│   └── README.md                # Usage examples
 ├── .github/
 │   └── workflows/
 │       └── python-test.yml      # CI/CD GitHub Actions
-├── requirements_dxf.txt         # Dépendances Python
-├── UTILISATION.md               # Guide d'utilisation détaillé
-├── CHANGELOG.md                 # Historique des versions
-├── LICENSE                      # Licence MIT
-└── README.md                    # Ce fichier
+├── requirements_dxf.txt         # Python dependencies
+├── UTILISATION.md               # Detailed usage guide (French)
+├── CHANGELOG.md                 # Version history
+├── LICENSE                      # MIT License
+└── README.md                    # This file
 ```
 
-## Contribuer
+## Contributing
 
-Les contributions sont les bienvenues ! Pour contribuer :
+Contributions are welcome! To contribute:
 
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/amelioration`)
-3. Commit les changements (`git commit -m 'Ajout d'une fonctionnalité'`)
-4. Push vers la branche (`git push origin feature/amelioration`)
-5. Ouvrir une Pull Request
+1. Fork the project
+2. Create a branch (`git checkout -b feature/improvement`)
+3. Commit changes (`git commit -m 'Add feature'`)
+4. Push to branch (`git push origin feature/improvement`)
+5. Open a Pull Request
 
-## Licence
+## License
 
-MIT - Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+MIT - See [LICENSE](LICENSE) file for details.
 
-## Auteur
+## Author
 
-Projet créé pour résoudre la problématique d'assemblage par rivets dans CAMduct.
+Project created to solve rivet assembly positioning issues in CAMduct.
 
 ## Support
 
-- 📖 [Documentation complète](README.md)
-- 📝 [Guide d'utilisation](UTILISATION.md)
-- 💡 [Exemples](examples/README.md)
-- 🐛 [Signaler un bug](https://github.com/Umbo-Damien/CamductRivets/issues)
-- ⭐ [Donner une étoile](https://github.com/Umbo-Damien/CamductRivets)
+- 📖 [Complete documentation](README.md)
+- 📝 [Usage guide](UTILISATION.md) (French)
+- 💡 [Examples](examples/README.md)
+- 🐛 [Report a bug](https://github.com/Umbo-Damien/CamductRivets/issues)
+- ⭐ [Star the project](https://github.com/Umbo-Damien/CamductRivets)
