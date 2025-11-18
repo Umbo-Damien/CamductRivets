@@ -43,6 +43,39 @@ Or directly:
 pip install ezdxf
 ```
 
+## CAMduct Configuration
+
+Before using this script, you need to configure fixing holes in CAMduct:
+
+### 1. Database Configuration - Pattern Options
+
+1. Open **Database** in CAMduct
+2. Go to **Fittings** tab
+3. Select **Pattern Options** in the left panel
+4. Click on the **Holes** tab
+5. Configure **Fixing Holes** section:
+   - **Hole Diameter**: `4.2` mm (rivet hole size)
+   - **Hole Spacing (Shoulder) Distance**: `25.0` mm (or as needed)
+   - **Spacing**: `110.0` mm (or as needed)
+   - **Hole Inset**: `0.0` mm
+   - Check **Draw Holes** ✓
+   - Check **Develop Holes** ✓
+
+![CAMduct Database - Holes Configuration](docs/images/camduct-database-holes.png)
+
+### 2. Takeoff Configuration - Item Information
+
+To display fixing holes information in takeoff reports:
+
+1. Go to **Takeoff** > **Customize Main Takeoff**
+2. In **Item Information** tab
+3. Add **Fixing Holes** to the displayed fields list
+4. This will show fixing hole information in your reports
+
+![CAMduct Takeoff - Fixing Holes](docs/images/camduct-takeoff-fixing-holes.png)
+
+**📖 For detailed configuration instructions, see [CAMduct Setup Guide](docs/CAMDUCT_SETUP.md)**
+
 ## Usage
 
 ### 1. Export DXF from CAMduct

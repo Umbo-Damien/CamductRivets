@@ -41,6 +41,39 @@ Ou directement :
 pip install ezdxf
 ```
 
+## Configuration CAMduct
+
+Avant d'utiliser ce script, vous devez configurer les trous de fixation dans CAMduct :
+
+### 1. Configuration Base de Données - Pattern Options
+
+1. Ouvrir **Database** dans CAMduct
+2. Aller dans l'onglet **Fittings**
+3. Sélectionner **Pattern Options** dans le panneau de gauche
+4. Cliquer sur l'onglet **Holes**
+5. Configurer la section **Fixing Holes** :
+   - **Hole Diameter**: `4.2` mm (diamètre des trous de rivets)
+   - **Hole Spacing (Shoulder) Distance**: `25.0` mm (ou selon besoin)
+   - **Spacing**: `110.0` mm (ou selon besoin)
+   - **Hole Inset**: `0.0` mm
+   - Cocher **Draw Holes** ✓
+   - Cocher **Develop Holes** ✓
+
+![CAMduct Database - Configuration Holes](docs/images/camduct-database-holes.png)
+
+### 2. Configuration Takeoff - Item Information
+
+Pour afficher les informations des trous de fixation dans les rapports :
+
+1. Aller dans **Takeoff** > **Customize Main Takeoff**
+2. Dans l'onglet **Item Information**
+3. Ajouter **Fixing Holes** à la liste des champs affichés
+4. Cela affichera les informations des trous de fixation dans vos rapports
+
+![CAMduct Takeoff - Fixing Holes](docs/images/camduct-takeoff-fixing-holes.png)
+
+**📖 Pour des instructions détaillées de configuration, voir le [Guide de Configuration CAMduct](docs/CAMDUCT_SETUP.md#guide-de-configuration-camduct-pour-les-trous-de-rivets)**
+
 ## Utilisation
 
 ### 1. Export DXF depuis CAMduct
