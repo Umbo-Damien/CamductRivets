@@ -8,8 +8,8 @@
 
 CAMduct positionne les trous de fixation de manière symétrique à 10mm du bord de la pièce. Pour l'assemblage par rivets avec agrafes de 20mm, cette position n'est correcte que pour un côté :
 
-- **Bord nu** : 10mm → ✓ OK
-- **Bord avec agrafe 20mm** : 10mm → ✗ Devrait être à 30mm (10mm + 20mm d'agrafe)
+- **Bord nu** : Trous à 10mm → ✓ OK (position correcte à -10mm du bord)
+- **Bord avec agrafe 20mm** : Trous à 10mm → ✗ Devrait être à -10mm du bord, mais l'agrafe les décale à +10mm (30mm du bord de la pièce développée)
 
 ## Solution : Post-traitement DXF
 
@@ -62,9 +62,11 @@ python scripts/fix_rivet_holes.py /chemin/vers/dxf/ /chemin/vers/output/
 ### 3. Résultat
 
 Le script :
+- ✅ **Filtre les trous de rivets** (Ø 4.2mm uniquement)
 - ✅ Détecte automatiquement les trous à 30mm du bord
-- ✅ Les déplace de -20mm **perpendiculairement au bord**
+- ✅ Les déplace de -20mm **perpendiculairement au bord** (ramène à 10mm)
 - ✅ Laisse intacts les trous déjà à 10mm
+- ✅ Ignore les autres trous (non-rivets)
 - ✅ Fonctionne sur **toutes les géométries** (bords droits, inclinés, etc.)
 
 ## Exemple de sortie
@@ -74,26 +76,32 @@ Le script :
 Fichier: 1-2.DXF
 ======================================================================
 
-Trou   Position             Dist     Action                        
-----------------------------------------------------------------------
-✓ 1    (368.1, 390.4)         29.6mm Déplacer de -20.0mm
-✓ 2    (289.1, 366.8)         30.0mm Déplacer de -20.0mm
-= 3    (210.1, 343.3)         10.0mm OK (déjà à 10mm)
+Trou   Position             Ø      Dist     Action                        
+----------------------------------------------------------------------------
+✓ 1    (368.1, 390.4)       4.2mm    29.6mm Déplacer de -20.0mm
+✓ 2    (289.1, 366.8)       4.2mm    30.0mm Déplacer de -20.0mm
+= 3    (210.1, 343.3)       4.2mm    10.0mm OK (déjà à 10mm)
+⊗ 4    (150.0, 200.0)       6.0mm    15.0mm Ignoré (Ø ≠ 4.2mm)
 ...
-----------------------------------------------------------------------
-Résumé: 5 OK, 5 corrigés, 0 inconnus
+----------------------------------------------------------------------------
+Résumé: 5 OK, 5 corrigés, 0 inconnus, 2 ignorés (Ø ≠ 4.2mm)
 ✓ Sauvegardé: 1-2_fixed.DXF
+
+⚠ Note: Les trous à ~30mm sont souvent liés à la présence d'une marque de 
+pliage ou encoche. Une validation visuelle est toujours recommandée.
 ```
 
 ## Fonctionnalités
 
+- ✅ **Filtrage intelligent** : Traite uniquement les trous de rivets (Ø 4.2mm ± 0.3mm)
 - ✅ Détection automatique des trous à 10mm ou 30mm (avec tolérances)
 - ✅ Déplacement perpendiculaire au bord (géométrie quelconque)
 - ✅ Traitement par lot de plusieurs DXF
 - ✅ Mode dry-run pour simulation
-- ✅ Rapport détaillé par fichier et par trou
+- ✅ Rapport détaillé par fichier et par trou (avec diamètre)
 - ✅ Gestion des bords inclinés et complexes
 - ✅ Tolérances élargies : 6-14mm (OK) et 22-38mm (à corriger)
+- ✅ Ignore automatiquement les trous non-rivets (autres diamètres)
 
 ## Prérequis
 

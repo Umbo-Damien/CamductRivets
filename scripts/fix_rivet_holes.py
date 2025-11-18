@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
-Correction automatique des trous de fixation pour assemblage par rivets
+Script de correction des trous de fixation dans les fichiers DXF CAMduct
 
-Règle simple:
-- Trous à 10mm du bord = OK (bord nu)
-- Trous à 30mm du bord = Déplacer de -20mm perpendiculairement (compenser l'agrafe)
+Logique:
+- Trous de rivets (Ø 4.2mm) à 10mm du bord = OK (bord nu)
+- Trous de rivets (Ø 4.2mm) à 30mm du bord = Déplacer de -20mm perpendiculairement
+  (30mm = 10mm offset + 20mm agrafe → ramener à 10mm du bord)
+- Autres diamètres = Ignorés (pas des trous de rivets)
 """
 
 import ezdxf
@@ -13,7 +15,9 @@ import math
 from pathlib import Path
 
 # Configuration
-TARGET_DISTANCE = 10.0  # mm - distance cible finale
+RIVET_DIAMETER = 4.2  # mm - diamètre des trous de rivets
+DIAMETER_TOLERANCE = 0.3  # mm - tolérance sur le diamètre (4.2 ± 0.3)
+TARGET_DISTANCE = 10.0  # mm - distance cible finale du bord
 TOLERANCE_10MM = 4.0  # mm - tolérance pour détecter les trous à ~10mm (6-14mm)
 TOLERANCE_30MM = 8.0  # mm - tolérance pour détecter les trous à ~30mm (22-38mm)
 CORRECTION = -20.0  # mm - correction à appliquer aux trous à corriger
@@ -78,12 +82,24 @@ def fix_holes_in_dxf(dxf_path, output_path=None, dry_run=False):
     holes_corrected = 0
     holes_ok = 0
     holes_unknown = 0
+    holes_ignored = 0
     
-    print(f"\n{'Trou':<6} {'Position':<20} {'Dist':<8} {'Action':<30}")
-    print("-" * 70)
+    print(f"\n{'Trou':<6} {'Position':<20} {'Ø':<6} {'Dist':<8} {'Action':<30}")
+    print("-" * 76)
     
     for i, circle in enumerate(circles, 1):
         cx, cy = circle.dxf.center.x, circle.dxf.center.y
+        radius = circle.dxf.radius
+        diameter = radius * 2
+        
+        # Filtrer par diamètre : traiter uniquement les trous de rivets (Ø 4.2mm)
+        if not (RIVET_DIAMETER - DIAMETER_TOLERANCE <= diameter <= RIVET_DIAMETER + DIAMETER_TOLERANCE):
+            # Ignorer les trous qui ne sont pas des trous de rivets
+            holes_ignored += 1
+            if not dry_run:
+                continue  # Ne pas afficher en mode production
+            print(f"⊗ {i:<4} ({cx:.1f}, {cy:.1f}){'':<8} {diameter:.1f}mm {'':>8} Ignoré (Ø ≠ 4.2mm)")
+            continue
         
         # Trouver le bord le plus proche et la direction perpendiculaire
         min_dist = float('inf')
@@ -104,6 +120,7 @@ def fix_holes_in_dxf(dxf_path, output_path=None, dry_run=False):
         
         # Déterminer l'action
         pos_str = f"({cx:.1f}, {cy:.1f})"
+        diam_str = f"{diameter:.1f}mm"
         
         if TARGET_DISTANCE - TOLERANCE_10MM <= min_dist <= TARGET_DISTANCE + TOLERANCE_10MM:
             # Trou à ~10mm = OK
@@ -130,10 +147,13 @@ def fix_holes_in_dxf(dxf_path, output_path=None, dry_run=False):
             marker = "?"
             holes_unknown += 1
         
-        print(f"{marker} {i:<4} {pos_str:<20} {min_dist:>6.1f}mm {action}")
+        print(f"{marker} {i:<4} {pos_str:<20} {diam_str:<6} {min_dist:>6.1f}mm {action}")
     
-    print("-" * 70)
-    print(f"Résumé: {holes_ok} OK, {holes_corrected} corrigés, {holes_unknown} inconnus")
+    print("-" * 76)
+    summary = f"Résumé: {holes_ok} OK, {holes_corrected} corrigés, {holes_unknown} inconnus"
+    if holes_ignored > 0:
+        summary += f", {holes_ignored} ignorés (Ø ≠ 4.2mm)"
+    print(summary)
     
     # Sauvegarder
     if not dry_run and holes_corrected > 0:
