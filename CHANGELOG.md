@@ -2,6 +2,22 @@
 
 Toutes les modifications notables de ce projet seront documentées dans ce fichier.
 
+## [1.1.0] - 2025-11-18
+
+### Ajouté
+- **Filtrage par diamètre** : Le script traite uniquement les trous de rivets (Ø 4.2mm ± 0.3mm)
+- Colonne "Ø" dans le rapport pour afficher le diamètre de chaque trou
+- Compteur de trous ignorés (non-rivets) dans le résumé
+- Avertissement sur les trous à ~30mm (souvent liés aux marques de pliage)
+
+### Modifié
+- Clarification de la logique dans la documentation (trous à -10mm du bord)
+- Amélioration de l'affichage du rapport avec le diamètre
+- Documentation mise à jour avec exemples de filtrage
+
+### Sécurité
+- Prévention de la modification accidentelle de trous non-rivets
+
 ## [1.0.0] - 2025-11-18
 
 ### Ajouté
