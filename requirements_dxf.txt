@@ -1,0 +1,4 @@
+ezdxf>=1.0.0
+
+# Installation:
+# pip install -r requirements_dxf.txt
