@@ -67,6 +67,8 @@ Before using this script, you need to configure fixing holes in CAMduct:
 
 To display fixing holes information in takeoff reports:
 
+**Note:** These settings are only accessible from within a project. Open a project, select an item, then the **Takeoff** button will appear.
+
 1. Go to **Takeoff** > **Customize Main Takeoff**
 2. In **Item Information** tab
 3. Add **Fixing Holes** to the displayed fields list

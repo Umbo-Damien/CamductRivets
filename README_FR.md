@@ -65,6 +65,8 @@ Avant d'utiliser ce script, vous devez configurer les trous de fixation dans CAM
 
 Pour afficher les informations des trous de fixation dans les rapports :
 
+**Note :** Ces paramètres sont uniquement accessibles depuis un projet. Ouvrez un projet, sélectionnez un article, puis le bouton **Takeoff** apparaîtra.
+
 1. Aller dans **Takeoff** > **Customize Main Takeoff**
 2. Dans l'onglet **Item Information**
 3. Ajouter **Fixing Holes** à la liste des champs affichés
